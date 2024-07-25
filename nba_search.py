@@ -1,10 +1,8 @@
-import argparse
 from nba_api.stats.static import players
 from nba_api.stats.static import teams
-from nba_api.stats.endpoints import commonplayerinfo
 
 
-def search(name):
+def nba_search(name):
     player_list = players.get_active_players()
     team_list = teams._get_teams()
     results = []
@@ -14,5 +12,4 @@ def search(name):
     for team in team_list:
         if name.lower() in team['full_name'].lower():
             results.append(team)
-    
     return results
