@@ -7,5 +7,3 @@ def player_stats(id):
     if not recent_season_stats.empty:
         return recent_season_stats.iloc[-1]
     return 'Player has not played yet'
-
-print(player_stats(203507))
