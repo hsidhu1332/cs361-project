@@ -12,9 +12,9 @@ class NBAFetchStats:
         self.last_search = None
 
     def search(self, name=None):
-        print('Type the name of the player or team you want to search')
-        print('You can also type menu to return to the menu\n')
         while True:
+            print('Type the name of the player or team you want to search')
+            print('You can also type menu to return to the menu\n')
             if name is None:
                 name = input('Search: ')
                 self.last_search = name
@@ -25,19 +25,38 @@ class NBAFetchStats:
             if results:
                 if len(results) > 10:
                     length_choice = input('This search has more than 10 results, are you sure you want to continue? [yes/no] ')
-                    if length_choice == 'yes':
+                    if length_choice == 'no':
+                        name = None
+                        continue
+                print(f'Showing {len(results)} results')
+                for i, result in enumerate(results, start=1):
+                    print(f'{i}. {result['full_name']}')
+                print()
+                print('Type menu to return to the menu or back to return to search')
+                print('Otherwise, type the number corresponding to the player or team to view stats\n')
+                while True:
+                    select_option = input('Select option: ')
+                    if select_option != 'menu' and select_option !='back' and not select_option.isdigit():
+                        print('Unknown command, please try again.')
+                        continue
+                    try:
+                        if int(select_option) > len(results):
+                            print('Unknown command, please try again.')
+                        else:
+                            break
+                    except ValueError:
                         break
+                if select_option == 'menu':
+                    return None
+                if select_option == 'back':
+                    name = None
+                    print()
+                    continue
                 else:
                     break
             else:
                 print('No search results found.\n')
-        print(f'Showing {len(results)} results')
-        for i, result in enumerate(results, start=1):
-            print(f'{i}. {result['full_name']}')
-        print()
-        select_option = int(input('Select a result by number to display stats: ')) - 1
-        option = results[select_option]
-
+        option = results[int(select_option) - 1]
         if 'state' in option:
             team_name = option['full_name']
             stats = team_stats(option['id'])
@@ -80,8 +99,7 @@ class NBAFetchStats:
         if self.last_player_stats is not None:
             self.player_print(self.last_player_name, self.last_player_stats)
         else:
-            print('No Player has been Searched Yet!')
-            self.run(1)
+            print('No Player has been Searched Yet!\n')
 
     def set_last_player(self, name, stats):
         self.last_player_name = name
@@ -91,8 +109,7 @@ class NBAFetchStats:
         if self.last_team_stats is not None:
             self.team_print(self.last_team_name, self.last_team_stats)
         else:
-            print('No Player has been Searched Yet!')
-            self.run(1)
+            print('No Player has been Searched Yet!\n')
 
     def set_last_team(self, name, stats):
         self.last_team_name = name
@@ -107,7 +124,12 @@ class NBAFetchStats:
             if restart != '1' and restart != '2':
                 print('Unknown command, please Try Again')
             elif restart == '1':
-                confirm = input('Are you sure you want to return to the menu? [yes/no] ')
+                while True:
+                    confirm = input('Are you sure you want to return to the menu? [yes/no] ')
+                    if confirm == 'yes' or confirm == 'no':
+                        break
+                    else:
+                        print('Unknown command, please Try Again')
                 if confirm == 'yes':
                     break
             else:
