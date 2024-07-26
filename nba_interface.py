@@ -12,13 +12,15 @@ class NBAFetchStats:
         self.last_search = None
 
     def search(self, name=None):
+        print('Type the name of the player or team you want to search')
+        print('You can also type menu to return to the menu\n')
         while True:
             if name is None:
                 name = input('Search: ')
                 self.last_search = name
-            if name == 'menu':
-                self.run()
             print()
+            if name == 'menu':
+                return None
             results = nba_search(name)
             if results:
                 if len(results) > 10:
@@ -32,7 +34,7 @@ class NBAFetchStats:
         print(f'Showing {len(results)} results')
         for i, result in enumerate(results, start=1):
             print(f'{i}. {result['full_name']}')
-
+        print()
         select_option = int(input('Select a result by number to display stats: ')) - 1
         option = results[select_option]
 
@@ -48,8 +50,8 @@ class NBAFetchStats:
             self.player_print(player_name, stats)
 
     def player_print(self, name, stats):
-        print(f'Stats from {name}\'s most recent season...')
         print()
+        print(f'Stats from {name}\'s most recent season...\n')
         print(f'Points per Game: {round(stats['PTS'] / stats['GP'], 1)}')
         print(f'Rebounds per Game: {round(stats['REB'] / stats['GP'], 1)}')
         print(f'Assists per Game: {round(stats['AST'] / stats['GP'], 1)}')
@@ -61,8 +63,8 @@ class NBAFetchStats:
         self.end()
 
     def team_print(self, name, stats):
-        print(f'Stats from the {name} most recent season...')
         print()
+        print(f'Stats from the {name} most recent season...\n')
         print(f'Record: {stats['WINS']} - {stats['LOSSES']}')
         print(f'Points per Game: {round(stats['PTS'] / stats['GP'], 1)}')
         print(f'Rebounds per Game: {round(stats['REB'] / stats['GP'], 1)}')
@@ -98,13 +100,20 @@ class NBAFetchStats:
 
     def end(self):
         while True:
-            restart = input('Do you want to return to the menu? [yes/no] ')
-            if restart != 'yes' and restart != 'no':
+            print('What would you like to do?\n')
+            print('1. Go back to menu')
+            print('2. Back to Search Results\n')
+            restart = input('Select option: ')
+            if restart != '1' and restart != '2':
                 print('Unknown command, please Try Again')
+            elif restart == '1':
+                confirm = input('Are you sure you want to return to the menu? [yes/no] ')
+                if confirm == 'yes':
+                    break
             else:
                 break
-        if restart == 'yes':
-            self.run(1)
+        if restart == '2':
+            self.search(self.last_search)
 
     def run(self, run_num=0):
         while True:
@@ -121,14 +130,14 @@ class NBAFetchStats:
             print()
             if choice != '1' and choice != '2' and choice != '3' and choice != 'exit':
                 print('Unknown Option, Please Try Again.\n')
-            else:
+            if choice == '1':
+                self.search()
+            elif choice == '2':
+                self.get_last_player()
+            elif choice == '3':
+                self.get_last_team()
+            elif choice == 'exit':
                 break
-        if choice == '1':
-            self.search()
-        elif choice == '2':
-            self.get_last_player()
-        elif choice == '3':
-            self.get_last_team()
 
 
 if __name__ == "__main__":
