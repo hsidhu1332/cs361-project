@@ -61,6 +61,7 @@ class NBAFetchStats:
                     break
             else:
                 print('No search results found. Try again.\n')
+                name = None
         option = results[int(select_option) - 1]
         if 'state' in option:
             team_name = option['full_name']
@@ -152,7 +153,7 @@ class NBAFetchStats:
                 run_num += 1
             else:
                 print('Lookup the most recent stats from NBA Players or Teams!')
-            print('Type the number for the menu option you want to select\n')
+            print('Type the number for the menu option you want to select, or exit to quit\n')
             print('1. Search')
             print('2. View Last Player')
             print('3. View Last Team\n')
