@@ -24,7 +24,12 @@ class NBAFetchStats:
             results = nba_search(name)
             if results:
                 if len(results) > 10:
-                    length_choice = input('This search has more than 10 results, are you sure you want to continue? [yes/no] ')
+                    while True:
+                        length_choice = input('This search has more than 10 results, are you sure you want to continue? [yes/no] ')
+                        if length_choice == 'yes' or length_choice == 'no':
+                            break
+                        else:
+                            print('Unknown command, please try again.')
                     if length_choice == 'no':
                         name = None
                         continue
@@ -55,7 +60,7 @@ class NBAFetchStats:
                 else:
                     break
             else:
-                print('No search results found.\n')
+                print('No search results found. Try again.\n')
         option = results[int(select_option) - 1]
         if 'state' in option:
             team_name = option['full_name']
@@ -70,7 +75,10 @@ class NBAFetchStats:
 
     def player_print(self, name, stats):
         print()
-        print(f'Stats from {name}\'s most recent season...\n')
+        if name.endswith('s'):
+            print(f'Stats from {name}\' most recent season...\n')
+        else:
+            print(f'Stats from {name}\'s most recent season...\n')
         print(f'Points per Game: {round(stats['PTS'] / stats['GP'], 1)}')
         print(f'Rebounds per Game: {round(stats['REB'] / stats['GP'], 1)}')
         print(f'Assists per Game: {round(stats['AST'] / stats['GP'], 1)}')
@@ -125,7 +133,7 @@ class NBAFetchStats:
                 print('Unknown command, please Try Again')
             elif restart == '1':
                 while True:
-                    confirm = input('Are you sure you want to return to the menu? [yes/no] ')
+                    confirm = input('Are you sure you want to return to the menu? You will have to search again to see your search results. [yes/no] ')
                     if confirm == 'yes' or confirm == 'no':
                         break
                     else:
