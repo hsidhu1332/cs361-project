@@ -1,7 +1,4 @@
-from nba_search import nba_search
-from get_stats import player_stats
-from get_stats import team_stats
-
+import zmq
 
 class NBAFetchStats:
     def __init__(self):
@@ -11,6 +8,41 @@ class NBAFetchStats:
         self.last_team_stats = None
         self.last_search = None
 
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.REQ)
+        self.socket.connect("tcp://localhost:5555")
+
+        self.stats_socket = self.context.socket(zmq.REQ)
+        self.stats_socket.connect("tcp://localhost:5556")
+
+        self.random_socket = self.context.socket(zmq.REQ)
+        self.random_socket.connect("tcp://localhost:5557")
+
+    def player_stats(self, id):
+        self.stats_socket.send_pyobj({'type': 'player', 'id': id})
+        stats = self.stats_socket.recv_pyobj()
+        return stats
+
+    def team_stats(self, id):
+        self.stats_socket.send_pyobj({'type': 'team', 'id': id})
+        stats = self.stats_socket.recv_pyobj()
+        return stats
+
+    def get_random_player_ppg(self):
+        self.random_socket.send_string('random_player')
+        stats = self.random_socket.recv_pyobj()
+
+        if 'error' not in stats:
+            print(f'PPG for the last {len(stats['PPG'])} seasons of {stats['player_name']}')
+            ppg_stats = stats['PPG']
+            for season in ppg_stats:
+                print(f'Season: {season['season']} PPG: {season['ppg']} pts')
+            print(stats['trend'])
+            print()
+        else:
+            print(stats['error'])
+
+    
     def search(self, name=None):
         while True:
             print('Type the name of the player or team you want to search')
@@ -21,7 +53,10 @@ class NBAFetchStats:
             print()
             if name == 'menu':
                 return None
-            results = nba_search(name)
+            
+            self.socket.send_string(name)
+            results = self.socket.recv_pyobj()
+            
             if results:
                 if len(results) > 10:
                     while True:
@@ -65,12 +100,12 @@ class NBAFetchStats:
         option = results[int(select_option) - 1]
         if 'state' in option:
             team_name = option['full_name']
-            stats = team_stats(option['id'])
+            stats = self.team_stats(option['id'])
             self.set_last_team(team_name, stats)
             self.team_print(team_name, stats)
         else:
             player_name = option['full_name']
-            stats = player_stats(option['id'])
+            stats = self.player_stats(option['id'])
             self.set_last_player(player_name, stats)
             self.player_print(player_name, stats)
 
@@ -156,10 +191,11 @@ class NBAFetchStats:
             print('Type the number for the menu option you want to select, or exit to quit\n')
             print('1. Search')
             print('2. View Last Player')
-            print('3. View Last Team\n')
+            print('3. View Last Team')
+            print('4. Get the PPG for the last 5 seasons of a random retired player\n')
             choice = input('Select option: ')
             print()
-            if choice != '1' and choice != '2' and choice != '3' and choice != 'exit':
+            if choice != '1' and choice != '2' and choice != '3' and choice != '4' and choice != 'exit':
                 print('Unknown Option, Please Try Again.\n')
             if choice == '1':
                 self.search()
@@ -167,6 +203,8 @@ class NBAFetchStats:
                 self.get_last_player()
             elif choice == '3':
                 self.get_last_team()
+            elif choice == '4':
+                self.get_random_player_ppg()
             elif choice == 'exit':
                 break
 
